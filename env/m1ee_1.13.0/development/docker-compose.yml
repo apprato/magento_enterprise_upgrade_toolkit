@@ -1,0 +1,80 @@
+version: '2'
+services:
+
+  mysql:
+    hostname: m1-mysql
+    container_name: m1-mysql
+    image: mysql:5.6
+    # Set max_allowed_packet to 256M (or any other value)
+    command: --max_allowed_packet=32505856 
+    ports:
+      - "3337:3306"
+    expose:
+      - 3337
+    environment:
+      - MYSQL_ROOT_PASSWORD=source_password
+      - MYSQL_DATABASE=source_database
+      - MYSQL_USER=source_username
+      - MYSQL_PASSWORD=source_password
+    volumes:
+      - ./build/mysql/data:/var/lib/mysql:rw
+
+  php:
+    container_name: m1-php
+    hostname: m1-php
+    restart: always
+    build: build/php
+    expose:
+      - 9000
+    volumes_from:
+      - appdata:rw
+
+  nginx:
+    container_name: m1-nginx
+    hostname: m1-nginx
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    restart: always
+    image: nginx:latest
+    build: build/nginx
+    links:
+      - php
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    volumes_from:
+      - appdata:rw
+
+  redis:
+    container_name: m1-redis
+    hostname: m1-redis
+    restart: always
+    image: redis
+    expose:
+      - 6389
+    ports:
+      - 6389:6379
+
+
+  appdata:
+    container_name: m1-appdata
+    hostname: m1-appdata
+#    user: stephen
+    image: alpine:latest
+    build: build/appdata
+    volumes:
+      - ./build/nginx/mime.types:/etc/nginx/mime.types:ro
+      - ./build/nginx/sites-enabled/magento.conf:/etc/nginx/conf.d/magento.conf:rw
+      - ./build/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./build/appdata/startup.sh:/startup.sh:rw
+      - ../../../src/m1ee_1.13.0/:/var/www/html/magento.dev:rw
+      - ./build/php/php.ini:/usr/local/etc/php/php.ini:rw
+      - ./build/php/php-fpm.conf:/usr/local/etc/php-fpm.conf
+    tty: true
+    command: /bin/sh /startup.sh

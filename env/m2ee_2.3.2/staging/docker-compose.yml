@@ -1,0 +1,82 @@
+version: '2'
+services:
+    mysql:
+      image: mysql:5.7
+      hostname: m2-mysql-stage
+      container_name: m2-mysql-stage
+      volumes:
+         - ./build/mysql/data:/var/lib/mysql
+      restart: always
+      environment:
+        MYSQL_ROOT_PASSWORD: m2stage
+        MYSQL_DATABASE: m2stage
+        MYSQL_USER: m2stage
+        MYSQL_PASSWORD: m2stage
+      networks:
+        - m2-network              
+    php:
+      hostname: m2-php-stage
+      container_name: m2-php-stage   
+      restart: always
+      build: build/php
+      ports:
+        - 9000:9000
+      volumes_from:
+        - appdata:rw
+      depends_on:
+        - mysql
+      links:
+        - mysql
+      environment:
+        - MYSQL_DATABASE=m2prod"
+      networks:
+        - m2-network
+
+    nginx:
+      hostname: m2-nginx-stage
+      container_name: m2-nginx-stage
+      restart: always
+      image: nginx:latest
+      build: build/nginx
+      links:
+        - php
+      ports:
+        - "80:80"
+        - "443:443"
+      volumes_from:
+        - appdata:rw
+      depends_on:
+        - mysql
+        - php
+      networks:
+        - m2-network
+
+    redis:
+      container_name: m2-redis-stage
+      hostname: m2-redis-stage
+      restart: always
+      image: redis
+      ports:
+        - 6379
+      networks:
+        - m2-network
+
+    appdata:
+      container_name: m2-appdata-stage
+      hostname: m2-appdata-stage
+      image: alpine:latest
+      build: build/appdata
+      volumes:
+        - ../../../src/m2ee_2.3.2:/var/www/html/magento2.dev:rw      
+      tty: true
+      command: /bin/sh /startup.sh
+
+
+
+networks:
+  m2-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local

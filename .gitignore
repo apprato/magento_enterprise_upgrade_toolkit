@@ -1,0 +1,44 @@
+# .gitignore file
+
+
+## Data
+sql
+backups
+
+
+## IDEs
+.vscode
+.idea
+
+## M2EE_1.13.0 Docker - Magento Enterprise 1.13.0
+env/m1ee_1.13.0/development/build/mysql
+
+
+## M2EE_2.3.2 Docker - Magento Enterprise 2.3.2
+build/m2ee_1.13.0
+env/m2ee_1.13.0/development/build/mariadb/data
+env/m2ee_1.13.0/development/build/mysql/data
+env/m2ee_2.3.2/staging/build/mysql
+
+
+## M1EE_1.13.0 src
+src/m1ee_1.13.0/app/etc/local.xml
+src/m1ee_1.13.0/nbproject/
+src/m1ee_1.13.0/media
+src/m1ee_1.13.0/media/*
+src/m1ee_1.13.0/downloader/*
+src/m1ee_1.13.0/var/*
+src/m1ee_1.13.0/var/cache
+src/m1ee_1.13.0/var/log
+src/!var/.htaccess
+src/!var/backup/*
+src/m1ee_1.13.0/blog/*
+src/m1ee_1.13.0/.DS_Store
+src/m1ee_1.13.0/.buildpath
+src/m1ee_1.13.0/.project
+src/m1ee_1.13.0/.settings/*
+src/m1ee_1.13.0/.idea
+src/m1ee_1.13.0//nbproject/private/
+
+
+## M2EE_2.3.2 src
